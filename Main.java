@@ -52,6 +52,7 @@ public class Main extends Application {
 		//login button
 		Button loginBtn = new Button("Login");
 		loginBtn.setStyle("-fx-background-color: #e6d1f2");
+		loginBtn.setOnAction(event -> switchToCourses(primary));
 		
 		//links for signing up for a new account and resetting password
 		Hyperlink signupBtn = new Hyperlink("Don't have an account? Click here");
@@ -107,6 +108,18 @@ public class Main extends Application {
 		VBox signup = new VBox();
 		signup.getChildren().add(returnToMain);
 		Scene scene1 = new Scene(signup, 550, 550);
+		scene1.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+		primary.setScene(scene1);
+	}
+	
+	//switches the scene to the main course page
+	private void switchToCourses(Stage primary) {
+		primary.setTitle("My Courses");
+		Hyperlink returnToMain = new Hyperlink("Return to login");
+		returnToMain.setOnAction(event -> switchToMain(primary));
+		VBox signup = new VBox();
+		signup.getChildren().add(returnToMain);
+		Scene scene1 = new Scene(signup, 500, 550);
 		scene1.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 		primary.setScene(scene1);
 	}
