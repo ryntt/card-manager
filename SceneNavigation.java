@@ -15,6 +15,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
@@ -22,12 +23,19 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class SceneNavigation {
 
 	private final int TEXTBOX_SIZE = 350;
 		
-	//switches the scene to the main login page
+	/**
+	 * Switches the scene to the main login scene, which includes
+	 * features for logging in, resetting the password, and signing up 
+	 * for a new account. 
+	 * 
+	 * @param primary the main stage where the scene will take place
+	 */
 	private void switchToMain(Stage primary) {
 		primary.setTitle("Sign In");
 		
@@ -102,7 +110,12 @@ public class SceneNavigation {
 		primary.setScene(scene);
 	}
 		
-	//switches the scene to the reset page
+	/**
+	 * Switches the scene to the password reset scene, where users can 
+	 * set a new password if they answer their security question correctly.
+	 * 
+	 * @param primary the main stage where the scene will take place 
+	 */
 	private void switchToReset(Stage primary) {
 		primary.setTitle("Reset Password");
 		
@@ -149,7 +162,12 @@ public class SceneNavigation {
 		primary.setScene(scene1);
 	}
 	
-	//switches the scene to the signup page
+	/**
+	 * Switches the scene to the account sign up scene, where users can 
+	 * set a new username, password, and security question and answer. 
+	 * 
+	 * @param primary the main stage where the scene will take place
+	 */
 	private void switchToSignup(Stage primary) {
 		
 		//creates the heading at the top of the screen 
@@ -215,22 +233,35 @@ public class SceneNavigation {
 		primary.setScene(scene1);
 	}
 	
-	//switches the scene to the main course page
+	/**
+	 * Switches the scene to the main course scene, where users can create, delete, 
+	 * and rename courses. The features to delete and rename a course can be accessed
+	 * by right clicking on the course. 
+	 * 
+	 * @param primary
+	 */
 	private void switchToCourses(Stage primary) {
 		ArrayList<Course> listCourses = new ArrayList<Course>();
 		ArrayList<Button> listButtons = new ArrayList<Button>();
 		primary.setTitle("My Courses");
-		// logout button and enter
+		//styling the buttons for entering, deleting a course, renaming, and logging out
+		//also adds a tooltip to see instructions when cursor hovers over directions button
 		Button returnToMain = new Button("Logout");
-		returnToMain.setOnAction(event -> switchToMain(primary));
-		Button enter = new Button("Enter");
-		Button delete = new Button("Delete");
 		returnToMain.setStyle("-fx-text-fill: #FFFFFF;" + "-fx-background-color: #AFBAF7;" 
-									+"-fx-font-size: 13;" + "-fx-cursor: hand;");
+				+"-fx-font-size: 13;" + "-fx-cursor: hand;");
+		Button enter = new Button("Enter");
 		enter.setStyle("-fx-text-fill: #FFFFFF;" + "-fx-background-color: #0038A8;" 
 				+"-fx-font-size: 13;" + "-fx-cursor: hand;");	
-		delete.setStyle("-fx-text-fill: #FFFFFF;" + "-fx-background-color: #FF6A6A;" 
-				+"-fx-font-size: 13;" + "-fx-cursor: hand;");
+		Button directions = new Button("Instructions");
+		directions.setStyle("-fx-text-fill: #FFFFFF;" + "-fx-background-color: #FF6A6A;" 
+				+"-fx-font-size: 13;");
+		Tooltip t = new Tooltip();
+		t.setText("- To add a course: type the name of your course and press \"Enter\"\n"
+				+ "- To rename a course: right click on the course and press \"Rename\", \n	then type in the new name and press the return key\n"
+				+ "- To delete a course: right click on the course and press \"Delete\"");
+		t.setShowDelay(Duration.seconds(0));
+		t.setShowDuration(Duration.seconds(60));
+		directions.setTooltip(t);
 		Label name = new Label("Enter Name");
 		//set window look
 		name.setFont(new Font("Georgia", 15));
@@ -242,11 +273,12 @@ public class SceneNavigation {
 		signup.setMargin(name, new Insets(20, 20, 20, 20));
 		
 		TextField text = new TextField();
-		
 		text.setMaxWidth(200);
 		
-		// adds a new course 
+		//logs out of the app
+		returnToMain.setOnAction(event -> switchToMain(primary));
 		
+		// adds a new course 
 		enter.setOnAction(event -> {
 			String enterName = text.getText();
 			if (!enterName.isEmpty()) {
@@ -292,18 +324,19 @@ public class SceneNavigation {
 		Scene scene1 = new Scene(signup, 550, 550);
 		// sets background
 		scene1.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
-		signup.getChildren().addAll(text, enter, delete, returnToMain);
+		signup.getChildren().addAll(text, enter, directions, returnToMain);
 		signup.setStyle("-fx-background-color: linear-gradient(to top,#6299F9, #FFFAEA)");
-		
-		
 		primary.setScene(scene1);
 		
 		
 	}
 	
-	//runs the app. encapsulation is used to ensure the user cannot
-	//see the other methods and only knows to run the program.
-	
+	/**
+	 * Runs the application by having the main stage start with the main
+	 * login scene. 
+	 * 
+	 * @param primary the main stage where application execution will take place
+	 */
 	public void runApp(Stage primary) {
 		switchToMain(primary);
 	}
