@@ -53,14 +53,22 @@ public class SceneNavigation {
 		resetBtn.setOnAction(event -> switchToReset(primary));
 				
 		//user-name and password text fields
-		//extra lambda expression written to allow login by pressing return key
+		//extra lambda expressions written to allow login by pressing return key
 		Label userText = new Label("Username: ");
 		Label passText = new Label("Password: ");
 		TextField userField = new TextField();
 		userField.setMaxWidth(TEXTBOX_SIZE);
 		PasswordField passField = new PasswordField();
 		passField.setMaxWidth(TEXTBOX_SIZE);
-		//the lambda to login by pressing the return key
+		//the lambda expressions to login by pressing the return key
+		userField.setOnKeyPressed(event -> {
+			if (event.getCode() == KeyCode.ENTER) {
+				if (!userField.getText().isEmpty() && !passField.getText().isEmpty()) {
+					switchToCourses(primary);
+				}
+			}
+		});
+		
 		passField.setOnKeyPressed(event -> {
 			if (event.getCode() == KeyCode.ENTER) {
 				if (!userField.getText().isEmpty() && !passField.getText().isEmpty()) {
