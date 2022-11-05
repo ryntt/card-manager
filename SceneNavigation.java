@@ -259,21 +259,27 @@ public class SceneNavigation {
 				listCourses.add(new Course(enterName));
 				listButtons.add(newCourse);
 				text.clear();
+				
+				//creating the new drop down menu for each course
+				//the menu can be accessed by right clicking the mouse
 				ContextMenu menu = new ContextMenu();
 				MenuItem deleteBtn = new MenuItem("Delete");
 				MenuItem renameBtn = new MenuItem("Rename");
 				menu.getItems().addAll(deleteBtn, renameBtn);
 				newCourse.setContextMenu(menu);
+				
+				//option to delete the course
 				deleteBtn.setOnAction(e -> signup.getChildren().remove(newCourse));
+				
+				//renaming the course
+				TextField renaming = new TextField();
 				renameBtn.setOnAction(f -> {
-					TextField renaming = new TextField();
-					signup.getChildren().add(renaming);
-					String newText = renaming.getText();
+					renaming.setText(renaming.getText());
 					newCourse.setText("");
 					newCourse.setGraphic(renaming);
 					renaming.setOnKeyPressed(g -> {
 						if (g.getCode() == KeyCode.ENTER) {
-							newCourse.setText(newText);
+							newCourse.setText(renaming.getText());
 							newCourse.setGraphic(null);
 						}
 					});
