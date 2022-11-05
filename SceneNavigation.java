@@ -206,7 +206,7 @@ public class SceneNavigation {
 		returnToMain.setOnAction(event -> switchToMain(primary));
 		VBox signup = new VBox();
 		signup.getChildren().add(returnToMain);
-		Scene scene1 = new Scene(signup, 500, 550);
+		Scene scene1 = new Scene(signup, 550, 550);
 		scene1.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 		primary.setScene(scene1);
 	}
