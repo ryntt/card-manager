@@ -7,7 +7,10 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Hyperlink;
@@ -24,8 +27,12 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 
 public class SceneNavigation {
+	
+	ArrayList<User> Users = new ArrayList<User>();
 
 	private final int TEXTBOX_SIZE = 350;
 		
@@ -55,17 +62,13 @@ public class SceneNavigation {
 		Label welcomeLbl = new Label("Welcome Back!");
 		welcomeLbl.setFont(new Font("Georgia", 24));
 		
-		//login button
-		Button loginBtn = new Button("Login");
-		loginBtn.setStyle("-fx-background-color: #FFFAEA;" + "-fx-cursor: hand;");
-		loginBtn.setOnAction(event -> switchToCourses(primary));
-		
+			
 		//links for signing up for a new account and resetting password
 		Hyperlink signupBtn = new Hyperlink("Don't have an account? Click here");
 		signupBtn.setOnAction(event -> switchToSignup(primary));
 		signupBtn.setStyle("-fx-text-fill: #ffffff");
 		Hyperlink resetBtn = new Hyperlink("Forgot your password?");
-		resetBtn.setOnAction(event -> switchToReset(primary));
+		resetBtn.setOnAction(event -> switchToReset1(primary));
 		resetBtn.setStyle("-fx-text-fill: #ffffff");
 				
 		//user-name and password text fields
@@ -76,19 +79,30 @@ public class SceneNavigation {
 		userField.setMaxWidth(TEXTBOX_SIZE);
 		PasswordField passField = new PasswordField();
 		passField.setMaxWidth(TEXTBOX_SIZE);
+		
+		
+		//login button
+		Button loginBtn = new Button("Login");
+		loginBtn.setStyle("-fx-background-color: #FFFAEA;" + "-fx-cursor: hand;");
+		loginBtn.setOnAction(new EventHandler<ActionEvent>() {
+			@Override public void handle(ActionEvent e) {
+				signIn(primary, userField.getText(), passField.getText());
+			}
+		});
+				
+				
 		//the lambda expressions to login by pressing the return key
 		userField.setOnKeyPressed(event -> {
 			if (event.getCode() == KeyCode.ENTER) {
 				if (!userField.getText().isEmpty() && !passField.getText().isEmpty()) {
-					switchToCourses(primary);
+					signIn(primary, userField.getText(), passField.getText());
 				}
 			}
 		});
-
 		passField.setOnKeyPressed(event -> {
 			if (event.getCode() == KeyCode.ENTER) {
 				if (!userField.getText().isEmpty() && !passField.getText().isEmpty()) {
-					switchToCourses(primary);
+					signIn(primary, userField.getText(), passField.getText());
 				}
 			}
 		});
@@ -109,6 +123,156 @@ public class SceneNavigation {
 		scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 		primary.setScene(scene);
 	}
+	
+	/**
+	 * Checks if all sign in credentials are valid, and if so, switched the user to the courses page.
+	 * 
+	 * @param primary the main stage where the scene will take place
+	 * @param username the username the user provides
+	 * @param password the password the user provides
+	 */
+	private void signIn(Stage primary, String username, String password) {
+		
+		//check if user exists, and if so, check if password matches
+		Boolean userExists = false;
+		Boolean passwordMatch = false;
+		for (User u : Users) {
+			if (u.getUser().equals(username)){
+				userExists = true;
+				if(u.getPass().equals(password)) {
+					passwordMatch = true;
+					break;
+				}
+			}
+		}
+		
+		//call the appropriate alert or sign in the user if no issues are present
+		if (!userExists) {
+			Alert alert = new Alert(AlertType.INFORMATION, "Username does not exist.", ButtonType.OK);
+			alert.showAndWait();
+		} else if (!passwordMatch) {
+			Alert alert = new Alert(AlertType.INFORMATION, "Incorrect Password.", ButtonType.OK);
+			alert.showAndWait();
+		} else {
+			switchToCourses(primary);
+		}
+	}
+	
+	/**
+	 * Creates a new User account if all credentials are valid, then switches the user to the main page.
+	 * 
+	 * @param primary the main stage where the scene will take place
+	 * @param username the username the user provides
+	 * @param password the password the user provides
+	 * @param confirmPassword the confirm password that the user provides
+	 * @param question the security question that the user chooses to answer
+	 * @param answer the answer to the security question that the user provides
+	 */
+	private void createAccount(Stage primary, String username, String password, String confirmPassword, String question, String answer) {
+		String alertName = "";
+		boolean valid = false;
+		boolean usernameTaken = false;
+		for (User u : Users) {
+			if (u.getUser().equals(username)){
+				usernameTaken = true;
+				break;
+			}
+				
+		}
+		
+		//Make sure all credentials are valid
+		if (username.length() < 8) {
+			alertName = "Username must be at least 8 characters.";
+		} else if (password.length() < 8) {
+			alertName = "Password must be at least 8 characters.";
+		} else if (!password.equals(confirmPassword)) {
+			alertName = "Passwords do not match";
+		} else if (usernameTaken) {
+			alertName = "This username is already taken.";
+		} else if (question == null) {
+				alertName = "Please choose a security question.";
+		} else if (answer.length()<=2){
+			alertName = "Please type in a valid answer.";
+		} else {
+			valid = true;
+		}
+		
+		//call the appropriate alert or create a new account and user if no issues are present
+		if (valid) {
+			User u = new User(username, password, question, answer);
+			Users.add(u);
+			Alert alert = new Alert(AlertType.CONFIRMATION, "Account successfully created!", ButtonType.OK);
+			alert.showAndWait();
+			
+			switchToMain(primary);
+		} else {
+			Alert alert = new Alert(AlertType.INFORMATION, alertName, ButtonType.OK);
+			alert.showAndWait();
+		}
+	}
+	
+	/**
+	 * Switches the scene to the password reset scene 1, where users can 
+	 * type in their user name to confirm that their account exists
+	 * 
+	 * @param primary the main stage where the scene will take place 
+	 */
+	private void switchToReset1(Stage primary) {
+		primary.setTitle("Reset Password");
+		
+		//security question and space to answer
+		Label resetPassLabel = new Label("Reset Password");
+		resetPassLabel.setFont(new Font("Georgia", 24));
+		
+		Label userLabel = new Label("Username");
+		TextField username = new TextField();
+		username.setMaxWidth(TEXTBOX_SIZE);
+		
+		//line break
+		Label lineBreak = new Label("");
+		
+		//text fields for new password and confirming password
+		
+		
+		//continue button to switch to reset2 if username exists
+		Button submitReset = new Button("Continue");
+		submitReset.setOnAction(new EventHandler<ActionEvent>() {
+			@Override public void handle(ActionEvent e) {
+				
+				//find the user
+				User user = null;
+				for(User u : Users) {
+					if(u.getUser().equals(username.getText())) {
+						user = u;
+						break;
+					}
+				}
+				
+				//throw and error if the user does not exist, or take the user to the next page to reset their password
+				if(user == null) {
+					Alert alert = new Alert(AlertType.INFORMATION, "Username does not exist.", ButtonType.OK);
+					alert.showAndWait();
+				} else {
+					switchToReset2(primary, user);
+				}
+			}
+		});
+		
+		//styling the layout pane and adding components
+		GridPane reset = new GridPane();
+		reset.setStyle("-fx-background-color: linear-gradient(to top,#6299F9, #FFFAEA)");
+		reset.setPadding(new Insets(100, 100, 100, 120));
+		reset.setVgap(20);
+		reset.setHgap(10);
+		reset.add(resetPassLabel, 1, 0);
+		reset.add(userLabel, 0, 3);
+		reset.add(username, 1, 3);
+		reset.add(lineBreak, 1, 4);
+		reset.add(submitReset, 0, 8);
+		Scene scene1 = new Scene(reset, 550, 550);
+		scene1.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+		primary.setScene(scene1);
+	}
 		
 	/**
 	 * Switches the scene to the password reset scene, where users can 
@@ -116,12 +280,13 @@ public class SceneNavigation {
 	 * 
 	 * @param primary the main stage where the scene will take place 
 	 */
-	private void switchToReset(Stage primary) {
+	private void switchToReset2(Stage primary, User user) {
 		primary.setTitle("Reset Password");
 		
 		//security question and space to answer
 		Label questionLabel = new Label("Security Question:");
-		Text question = new Text("This is where the question should go.");
+		String s = user.getQuestion();
+		Text question = new Text(user.getQuestion());
 		Label answerLabel = new Label("Answer");
 		TextField answer = new TextField();
 		answer.setMaxWidth(TEXTBOX_SIZE);
@@ -139,7 +304,33 @@ public class SceneNavigation {
 		
 		//submit button to save changes
 		Button submitReset = new Button("Submit");
-		submitReset.setOnAction(event -> switchToMain(primary));
+		submitReset.setOnAction(new EventHandler<ActionEvent>() {
+			@Override public void handle(ActionEvent e) {
+				
+				//make sure the security question is answered correctly and new credentials are valid
+				String alertName = "";
+				if(!user.getAnswer().equals(answer.getText())) {
+					alertName = "Incorrect Answer";
+				} else if(newPass.getText().length() < 8){
+					alertName = "New Password must be at least 8 characters.";
+				} else if (!newPass.getText().equals(confirmPass.getText())) {
+					alertName = "Passwords do not match";
+				}
+				
+				
+				//throw and appropriate alert if answer is incorrect or credentials are invalid, or take the user to the main page if no issues are present
+				if(alertName != "") {
+					Alert alert = new Alert(AlertType.INFORMATION, alertName, ButtonType.OK);
+					alert.showAndWait();
+				} else {
+					user.setPass(newPass.getText());
+					Alert alert = new Alert(AlertType.CONFIRMATION, "Password has been reset!", ButtonType.OK);
+					alert.showAndWait();
+					switchToMain(primary);
+				}
+				
+			}
+		});
 		
 		//styling the layout pane and adding components
 		GridPane reset = new GridPane();
@@ -208,7 +399,12 @@ public class SceneNavigation {
 		
 		//submit button to save changes
 		Button submit = new Button("Submit");
-		submit.setOnAction(event -> switchToMain(primary));
+		
+		submit.setOnAction(new EventHandler<ActionEvent>() {
+			@Override public void handle(ActionEvent e) {
+				createAccount(primary, user.getText(), pass.getText(), confirm.getText(), (String)questionList.getValue(), qAnswer.getText());
+			}
+		});
 		
 		//styling the layout pane and adding components
 		GridPane signup = new GridPane();
