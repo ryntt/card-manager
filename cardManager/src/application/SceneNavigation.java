@@ -800,12 +800,12 @@ public class SceneNavigation {
 			}
 		});
 
-		cardPane.getChildren().addAll(qText, aText, enter, backBtn, allButton, learnedButton,
-								notButton);
+		cardPane.getChildren().addAll(qText, aText, enter, allButton, learnedButton,
+								notButton, backBtn);
 		cardPane.setStyle("-fx-background-color: linear-gradient(to top,#6299F9, #FFFAEA)");
 
 		//set up the scene
-		Scene scene1 = new Scene(cardPane, 750, 750);
+		Scene scene1 = new Scene(cardPane, 950, 750);
 		scene1.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 		primary.setScene(scene1);
 		primary.show();
