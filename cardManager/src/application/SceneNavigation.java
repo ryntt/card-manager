@@ -20,6 +20,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Hyperlink;
@@ -607,8 +608,13 @@ public class SceneNavigation {
 	
 	//switches to an individual course
 	private void switchToCourseCards(Stage primary) {
+		//list of actual cards
 		ArrayList<Card> cardList = new ArrayList<Card>();
+		//list of gridpanes representing cards
 		ArrayList<GridPane> cardBoxes = new ArrayList<GridPane>();
+		//lists of learned and not learned cards
+		ArrayList<GridPane> learnedCards = new ArrayList<>();
+		ArrayList<GridPane> notLearnedCards = new ArrayList<>();
 		//styling the buttons for entering, deleting a course, renaming, and logging out
 		//also adds a tooltip to see instructions when cursor hovers over directions button
 		Button backBtn = new Button("Back");
@@ -618,6 +624,18 @@ public class SceneNavigation {
 		enter.setStyle("-fx-text-fill: #FFFFFF;" + "-fx-background-color: #0038A8;" 
 				+"-fx-font-size: 13;" + "-fx-cursor: hand;");	
 		Label inputs = new Label("Type question & answer here:");
+		
+		// all cards, learned, unlearned buttons
+		Button allButton = new Button("All Cards");
+		Button learnedButton = new Button("Learned");
+		Button notButton = new Button("Not Learned");
+		allButton.setStyle("-fx-text-fill: #FFFFFF;" + "-fx-background-color: #000080;" 
+				+"-fx-font-size: 13;" + "-fx-cursor: hand;");
+		learnedButton.setStyle("-fx-text-fill: #FFFFFF;" + "-fx-background-color: #000080;" 
+				+"-fx-font-size: 13;" + "-fx-cursor: hand;");
+		notButton.setStyle("-fx-text-fill: #FFFFFF;" + "-fx-background-color: #000080;" 
+				+"-fx-font-size: 13;" + "-fx-cursor: hand;");
+				
 		//set window look
 		inputs.setFont(new Font("Georgia", 15));
 		FlowPane cardPane = new FlowPane();
@@ -632,10 +650,12 @@ public class SceneNavigation {
 		TextField aText = new TextField();
 		aText.setMaxWidth(250);
 		
+		
 		//switches back to classes
 		backBtn.setOnAction(event -> switchToCourses(primary));
 		
-		//adds a new card 
+		
+		//creates and adds a new card 
 		enter.setOnAction(event -> {
 			String enterQuestion = qText.getText();
 			String enterAnswer = aText.getText();
@@ -646,10 +666,28 @@ public class SceneNavigation {
 				Button qButton = new Button(enterQuestion);
 				Button aButton = new Button(enterAnswer);
 				
+				//learned and not learned checkbox			
+				CheckBox c = new CheckBox("Learned?");
+				//it's because whenever you make a new card, 
+				//it's automatically not learned at first
+				notLearnedCards.add(newCard);
+				//if we press box and it becomes unlearned, add card to unlearned list
+				//otherwise add card to learned list
+				c.setOnAction(e -> {
+					if (c.isSelected()) {
+						learnedCards.add(newCard);
+						notLearnedCards.remove(newCard);
+					} else {
+						notLearnedCards.add(newCard);
+						learnedCards.remove(newCard);
+					}
+				});
+				
 				//formatting the card
-				newCard.setStyle("-fx-text-fill: #000000;" + "-fx-background-color: #CCFFCC;" 
-						+ "-fx-border-color: #99FF99; -fx-border-width: 2px;");
-				newCard.setMinSize(350, 120);
+				newCard.setStyle("-fx-text-fill: #000000;" + "-fx-background-color: #F5F5F5;" 
+						+ "-fx-border-color: #808080; -fx-border-width: 2px;");
+				newCard.setMinSize(400, 200);
+				newCard.setPadding(new Insets(10, 10, 10, 10));
 				
 				//adding the card to the gridpane list and card lists
 				cardPane.getChildren().add(newCard);
@@ -662,7 +700,15 @@ public class SceneNavigation {
 				
 				//creating the button to delete
 				Button deleteBtn = new Button("Delete");
-				deleteBtn.setOnAction(e -> cardPane.getChildren().remove(newCard));
+				deleteBtn.setOnAction(e -> {
+					cardPane.getChildren().remove(newCard);
+					for(int i = 0; i < cardList.size(); i++) {
+						if(cardList.get(i).getQuestion().equals(enterQuestion)) {
+							cardList.remove(i);
+						}
+					}
+				});
+				
 				
 				//renaming the question - press question to rename
 				TextField renamingQuestion = new TextField();
@@ -676,6 +722,12 @@ public class SceneNavigation {
 							qButton.setGraphic(null);
 						}
 					});
+					for(int i = 0; i < cardList.size(); i++) {
+						if(cardList.get(i).getQuestion().equals(enterQuestion)) {
+							cardList.get(i).setQuestion(renamingQuestion.getText());
+						}
+					}
+					
 				});
 				
 				//renaming the answer - press answer to rename
@@ -690,6 +742,11 @@ public class SceneNavigation {
 							aButton.setGraphic(null);
 						}
 					});
+					for(int i = 0; i < cardList.size(); i++) {
+						if(cardList.get(i).getAnswer().equals(enterAnswer)) {
+							cardList.get(i).setAnswer(renamingAnswer.getText());
+						}
+					}
 				});
 				
 				//formatting the nodes of the card	
@@ -701,10 +758,50 @@ public class SceneNavigation {
 				newCard.add(aButton, 1, 1);
 				GridPane.setHalignment(deleteBtn, HPos.CENTER);
 				newCard.add(deleteBtn, 1, 4);
+				newCard.getChildren().add(c);
 			}
 		});
 		
-		cardPane.getChildren().addAll(qText, aText, enter, backBtn);
+		//presents learned cards
+		//basically, the cards are reset to all visible at first
+		//then, i iterate through all the cards
+		//if the card is not in the entire list OR not in the list of learned cards
+		//	then i make it not visible
+		//this leaves only the learned cards visible
+		//
+		//this same concept applies to notButton
+		learnedButton.setOnAction(e -> {
+			for (GridPane g : cardBoxes) {
+				g.setVisible(true);
+			}
+			for (GridPane g : cardBoxes) {
+				if (!cardBoxes.contains(g) || !learnedCards.contains(g)) {
+					g.setVisible(false);
+				}
+			}
+		});	
+				
+		//presents unlearned cards
+		notButton.setOnAction(e -> {
+			for (GridPane g : cardBoxes) {
+				g.setVisible(true);
+			}
+			for (GridPane g : cardBoxes) {
+				if (!cardBoxes.contains(g) || !notLearnedCards.contains(g)) {
+					g.setVisible(false);
+				}
+			}
+		});
+		
+		//presents all cards
+		allButton.setOnAction(a -> {
+			for (GridPane g : cardBoxes) {
+				g.setVisible(true);
+			}
+		});
+
+		cardPane.getChildren().addAll(qText, aText, enter, backBtn, allButton, learnedButton,
+								notButton);
 		cardPane.setStyle("-fx-background-color: linear-gradient(to top,#6299F9, #FFFAEA)");
 
 		//set up the scene
@@ -713,7 +810,6 @@ public class SceneNavigation {
 		primary.setScene(scene1);
 		primary.show();
 	}
-
 	
 	/**
 	 * Runs the application by having the main stage start with the main
