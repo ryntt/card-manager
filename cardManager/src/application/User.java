@@ -46,6 +46,13 @@ public class User {
 		this.answer = answer;
 	}
 	
+	public void resetAll(String user, String pass, String question, String answer) {
+		this.user = user;
+		this.pass = pass;
+		this.question = question;
+		this.answer = answer;
+	}
+	
 	public String getName() {
 		return name;
 	}
