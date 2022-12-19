@@ -28,6 +28,7 @@ import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyCode;
@@ -46,10 +47,7 @@ public class SceneNavigation {
 	ArrayList<User> Users = new ArrayList<User>();
 	PassUtil passUtil  = new PassUtil();
 	User CurrentUser = null;
-	
 	private final int TEXTBOX_SIZE = 350;
-	private final int DEFAULT_WIDTH = 550;
-	private final int DEFAULT_HEIGHT = 550;
 	
 	/**
 	 * Pulls users from backend file to Users arraylist
@@ -69,9 +67,6 @@ public class SceneNavigation {
 				String answer = fr.nextLine();
 				Users.add(new User(username, password, question, answer));
 			}
-//			for(User i : Users) {
-//				System.out.println(i.getUser());
-//			}
 			
 			fr.close();
 			
@@ -192,8 +187,10 @@ public class SceneNavigation {
 		root.getChildren().add(loginBtn);
 		root.getChildren().add(resetBtn);
 		root.getChildren().add(signupBtn);
-		Scene scene = new Scene(root,DEFAULT_WIDTH,DEFAULT_HEIGHT);
-		sceneSet(primary, scene);
+		Scene scene = new Scene(root,550,550);
+		scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+		primary.setScene(scene);
+		primary.show();
 	}
 	
 	/**
@@ -249,9 +246,8 @@ public class SceneNavigation {
 		boolean valid = false;
 		boolean usernameTaken = false;
 		for (User u : Users) {
-			if (!u.getUser().equals(CurrentUser.getUser()) && u.getUser().equals(username)){
+			if ((newAccount || !u.getUser().equals(CurrentUser.getUser())) && u.getUser().equals(username)){
 				usernameTaken = true;
-				System.out.println(CurrentUser.getUser());
 				break;
 			}
 				
@@ -285,7 +281,6 @@ public class SceneNavigation {
 						u.resetAll(username, passUtil.encrypt(password), question, answer);
 					}
 				}
-				System.out.println("RUNNING");
 			}
 			pushUsers();
 			
@@ -322,6 +317,13 @@ public class SceneNavigation {
 		TextField username = new TextField();
 		username.setMaxWidth(TEXTBOX_SIZE);
 		
+		//back button
+		Button backBtn = new Button("Back");
+		backBtn.setStyle("-fx-text-fill: #FFFFFF;" + "-fx-background-color: #FF0000;" 
+				+"-fx-font-size: 13;" + "-fx-cursor: hand;");
+
+		backBtn.setOnAction(event -> switchToMain(primary));
+		
 		//line break
 		Label lineBreak = new Label("");
 		
@@ -329,8 +331,8 @@ public class SceneNavigation {
 		
 		
 		//continue button to switch to reset2 if username exists
-		Button submitReset = new Button("Continue");
-		submitReset.setOnAction(new EventHandler<ActionEvent>() {
+		Button continueBtn = new Button("Continue");
+		continueBtn.setOnAction(new EventHandler<ActionEvent>() {
 			@Override public void handle(ActionEvent e) {
 				
 				//find the user
@@ -362,9 +364,12 @@ public class SceneNavigation {
 		reset.add(userLabel, 0, 3);
 		reset.add(username, 1, 3);
 		reset.add(lineBreak, 1, 4);
-		reset.add(submitReset, 0, 8);
-		Scene scene1 = new Scene(reset, DEFAULT_WIDTH, DEFAULT_HEIGHT);
-		sceneSet(primary, scene1);
+		reset.add(continueBtn, 0, 8);
+		reset.add(backBtn, 0, 9);
+		Scene scene1 = new Scene(reset, 550, 550);
+		scene1.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+		primary.setScene(scene1);
+		primary.show();
 	}
 		
 	/**
@@ -394,6 +399,13 @@ public class SceneNavigation {
 		PasswordField confirmPass = new PasswordField();
 		newPass.setMaxWidth(TEXTBOX_SIZE);
 		confirmPass.setMaxWidth(TEXTBOX_SIZE);
+		
+		//back button
+		Button backBtn = new Button("Back");
+		backBtn.setStyle("-fx-text-fill: #FFFFFF;" + "-fx-background-color: #FF0000;" 
+				+"-fx-font-size: 13;" + "-fx-cursor: hand;");
+
+		backBtn.setOnAction(event -> switchToReset1(primary));
 		
 		//submit button to save changes
 		Button submitReset = new Button("Submit");
@@ -442,8 +454,11 @@ public class SceneNavigation {
 		reset.add(confirmLabel, 0, 6);
 		reset.add(confirmPass, 1, 6);
 		reset.add(submitReset, 0, 8);
-		Scene scene1 = new Scene(reset, DEFAULT_WIDTH, DEFAULT_HEIGHT);
-		sceneSet(primary, scene1);
+		reset.add(backBtn, 0, 9);
+		Scene scene1 = new Scene(reset, 550, 550);
+		scene1.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+		primary.setScene(scene1);
+		primary.show();
 	}
 	
 	/**
@@ -485,6 +500,13 @@ public class SceneNavigation {
 		ComboBox questionList = new ComboBox(questions);
 		questionList.setMaxWidth(TEXTBOX_SIZE);
 		
+		//back button
+		Button backBtn = new Button("Back");
+		backBtn.setStyle("-fx-text-fill: #FFFFFF;" + "-fx-background-color: #FF0000;" 
+				+"-fx-font-size: 13;" + "-fx-cursor: hand;");
+
+		backBtn.setOnAction(event -> switchToMain(primary));
+		
 		//text field for coming up with an answer to the security question
 		Label answer = new Label("Answer ");
 		TextField qAnswer = new TextField();
@@ -517,8 +539,11 @@ public class SceneNavigation {
 		signup.add(answer, 0, 6);
 		signup.add(qAnswer, 1, 6);
 		signup.add(submit, 0, 8);
-		Scene scene1 = new Scene(signup, DEFAULT_WIDTH, DEFAULT_HEIGHT);
-		sceneSet(primary, scene1);
+		signup.add(backBtn, 0, 9);
+		Scene scene1 = new Scene(signup, 550, 550);
+		scene1.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+		primary.setScene(scene1);
+		primary.show();
 	}
 	
 	/**
@@ -569,7 +594,7 @@ public class SceneNavigation {
 		// adds a new course 
 		enter.setOnAction(event -> {
 			String enterName = text.getText();
-			if (enterName.length() > 0) {
+			if (!enterName.isEmpty()) {
 				Button newCourse = new Button(enterName);
 				newCourse.setStyle("-fx-text-fill: #000000;" + "-fx-background-color: #F5DE9C;" 
 						+ "-fx-border-color: #EBC861; -fx-border-width: 2px;" 
@@ -594,7 +619,15 @@ public class SceneNavigation {
 				//renaming the course
 				TextField renaming = new TextField();
 				renameBtn.setOnAction(f -> {
-					rename(renaming, newCourse);
+					renaming.setText(renaming.getText());
+					newCourse.setText("");
+					newCourse.setGraphic(renaming);
+					renaming.setOnKeyPressed(g -> {
+						if (g.getCode() == KeyCode.ENTER) {
+							newCourse.setText(renaming.getText());
+							newCourse.setGraphic(null);
+						}
+					});
 				});
 				
 				//opening the actual course up
@@ -609,8 +642,10 @@ public class SceneNavigation {
 		signup.setStyle("-fx-background-color: linear-gradient(to top,#6299F9, #FFFAEA)");
 
 		//set up the scene
-		Scene scene1 = new Scene(signup, DEFAULT_WIDTH, DEFAULT_HEIGHT);
-		sceneSet(primary, scene1);
+		Scene scene1 = new Scene(signup, 550, 550);
+		scene1.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+		primary.setScene(scene1);
+		primary.show();
 		
 	}
 	
@@ -635,6 +670,12 @@ public class SceneNavigation {
 		Button deleteAccount = new Button("Delete Account");
 		deleteAccount.setStyle("-fx-text-fill: #FFFFFF;" + "-fx-background-color: #FF6A6A;" 
 				+"-fx-font-size: 13;");
+
+		Button backBtn = new Button("Back");
+		backBtn.setStyle("-fx-text-fill: #FFFFFF;" + "-fx-background-color: #FF0000;" 
+				+"-fx-font-size: 13;" + "-fx-cursor: hand;");
+		
+		backBtn.setOnAction(event -> switchToCourses(primary));
 		
 		logOut.setOnAction(event -> {
 			switchToMain(primary);
@@ -659,8 +700,8 @@ public class SceneNavigation {
 		});
 		
 		//"Welcome Back" text
-		Label welcomeLbl = new Label("Welcome Back!");
-		welcomeLbl.setFont(new Font("Georgia", 24));
+		Label accountLbl = new Label("Account Settings");
+		accountLbl.setFont(new Font("Georgia", 24));
 		
 			
 		
@@ -668,12 +709,14 @@ public class SceneNavigation {
 		VBox root = new VBox();
 		root.setStyle("-fx-background-color: linear-gradient(to top,#6299F9, #FFFAEA)");
 		root.setPadding(new Insets(100, 1, 100, 105));
-		root.setSpacing(10);
+		root.setSpacing(15);
 		root.getChildren().add(nameLbl);
-		root.getChildren().add(welcomeLbl);
-		root.getChildren().addAll(modifyAccount, logOut, deleteAccount);
-		Scene scene = new Scene(root,DEFAULT_WIDTH,DEFAULT_HEIGHT);
-		sceneSet(primary, scene);
+		root.getChildren().add(accountLbl);
+		root.getChildren().addAll(modifyAccount, logOut, deleteAccount, backBtn);
+		Scene scene = new Scene(root,550,550);
+		scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+		primary.setScene(scene);
+		primary.show();
 	}
 	
 	private void switchToModifyAccount1(Stage primary) {
@@ -690,12 +733,15 @@ public class SceneNavigation {
 		//line break
 		Label lineBreak = new Label("");
 		
-		//text fields for new password and confirming password
-		
+		Button backBtn = new Button("Back");
+		backBtn.setStyle("-fx-text-fill: #FFFFFF;" + "-fx-background-color: #FF0000;" 
+				+"-fx-font-size: 13;" + "-fx-cursor: hand;");
+
+		backBtn.setOnAction(event -> switchToAccount(primary));
 		
 		//continue button to switch to reset2 if username exists
-		Button submitReset = new Button("Continue");
-		submitReset.setOnAction(new EventHandler<ActionEvent>() {
+		Button continueBtn = new Button("Continue");
+		continueBtn.setOnAction(new EventHandler<ActionEvent>() {
 			@Override public void handle(ActionEvent e) {
 				
 				//find the user
@@ -720,9 +766,12 @@ public class SceneNavigation {
 		reset.add(passLabel, 0, 3);
 		reset.add(pass, 1, 3);
 		reset.add(lineBreak, 1, 4);
-		reset.add(submitReset, 0, 8);
-		Scene scene1 = new Scene(reset, DEFAULT_WIDTH, DEFAULT_HEIGHT);
-		sceneSet(primary, scene1);
+		reset.add(continueBtn, 0, 8);
+		reset.add(backBtn, 0, 9);
+		Scene scene1 = new Scene(reset, 550, 550);
+		scene1.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+		primary.setScene(scene1);
+		primary.show();
 	}
 	
 	private void switchToModifyAccount2(Stage primary) {
@@ -758,6 +807,13 @@ public class SceneNavigation {
 		ComboBox questionList = new ComboBox(questions);
 		questionList.setMaxWidth(TEXTBOX_SIZE);
 		
+		//back button
+		Button backBtn = new Button("Back");
+		backBtn.setStyle("-fx-text-fill: #FFFFFF;" + "-fx-background-color: #FF0000;" 
+				+"-fx-font-size: 13;" + "-fx-cursor: hand;");
+
+		backBtn.setOnAction(event -> switchToModifyAccount1(primary));
+		
 		//text field for coming up with an answer to the security question
 		Label answer = new Label("Answer ");
 		TextField qAnswer = new TextField();
@@ -791,8 +847,11 @@ public class SceneNavigation {
 		signup.add(answer, 0, 6);
 		signup.add(qAnswer, 1, 6);
 		signup.add(submit, 0, 8);
-		Scene scene1 = new Scene(signup, DEFAULT_WIDTH, DEFAULT_HEIGHT);
-		sceneSet(primary, scene1);
+		signup.add(backBtn, 0, 9);
+		Scene scene1 = new Scene(signup, 550, 550);
+		scene1.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+		primary.setScene(scene1);
+		primary.show();
 	}
 	
 	
@@ -819,21 +878,34 @@ public class SceneNavigation {
 		Button allButton = new Button("All Cards");
 		Button learnedButton = new Button("Learned");
 		Button notButton = new Button("Not Learned");
+		Button shuffleButton = new Button("Shuffle");
 		allButton.setStyle("-fx-text-fill: #FFFFFF;" + "-fx-background-color: #000080;" 
 				+"-fx-font-size: 13;" + "-fx-cursor: hand;");
 		learnedButton.setStyle("-fx-text-fill: #FFFFFF;" + "-fx-background-color: #000080;" 
 				+"-fx-font-size: 13;" + "-fx-cursor: hand;");
 		notButton.setStyle("-fx-text-fill: #FFFFFF;" + "-fx-background-color: #000080;" 
 				+"-fx-font-size: 13;" + "-fx-cursor: hand;");
+		shuffleButton.setStyle("-fx-text-fill: #FFFFFF;" + "-fx-background-color: #000080;" 
+				+"-fx-font-size: 13;" + "-fx-cursor: hand;");
 				
 		//set window look
 		inputs.setFont(new Font("Georgia", 15));
+		
+		
+		
 		FlowPane cardPane = new FlowPane();
 		cardPane.setVgap(10);
 		cardPane.setHgap(10);
 		cardPane.setOrientation(Orientation.HORIZONTAL);
 		cardPane.getChildren().add(inputs);
+		cardPane.setPrefWidth(730);
+		cardPane.setPrefHeight(750);
 		cardPane.setMargin(inputs, new Insets(20, 20, 20, 20));
+		
+		ScrollPane scrollCardPane = new ScrollPane();
+		scrollCardPane.setContent(cardPane);
+		scrollCardPane.setFitToHeight(true);
+		scrollCardPane.setFitToWidth(true);
 		
 		TextField qText = new TextField();
 		qText.setMaxWidth(250);
@@ -849,7 +921,7 @@ public class SceneNavigation {
 		enter.setOnAction(event -> {
 			String enterQuestion = qText.getText();
 			String enterAnswer = aText.getText();
-			if (enterQuestion.length() > 0 && enterAnswer.length() > 0) {
+			if (!enterQuestion.isEmpty() && !enterAnswer.isEmpty()) {
 				GridPane newCard = new GridPane();
 				
 				//the question and answer "fields"
@@ -891,6 +963,7 @@ public class SceneNavigation {
 				//creating the button to delete
 				Button deleteBtn = new Button("Delete");
 				deleteBtn.setOnAction(e -> {
+					cardBoxes.remove(newCard);
 					cardPane.getChildren().remove(newCard);
 					for(int i = 0; i < cardList.size(); i++) {
 						if(cardList.get(i).getQuestion().equals(enterQuestion)) {
@@ -903,7 +976,15 @@ public class SceneNavigation {
 				//renaming the question - press question to rename
 				TextField renamingQuestion = new TextField();
 				qButton.setOnAction(f -> {
-					rename(renamingQuestion, qButton);
+					renamingQuestion.setText(renamingQuestion.getText());
+					qButton.setText("");
+					qButton.setGraphic(renamingQuestion);
+					renamingQuestion.setOnKeyPressed(g -> {
+						if (g.getCode() == KeyCode.ENTER) {
+							qButton.setText(renamingQuestion.getText());
+							qButton.setGraphic(null);
+						}
+					});
 					for(int i = 0; i < cardList.size(); i++) {
 						if(cardList.get(i).getQuestion().equals(enterQuestion)) {
 							cardList.get(i).setQuestion(renamingQuestion.getText());
@@ -915,7 +996,15 @@ public class SceneNavigation {
 				//renaming the answer - press answer to rename
 				TextField renamingAnswer = new TextField();
 				aButton.setOnAction(f -> {
-					rename(renamingAnswer, aButton);
+					renamingAnswer.setText(renamingAnswer.getText());
+					aButton.setText("");
+					aButton.setGraphic(renamingAnswer);
+					renamingAnswer.setOnKeyPressed(g -> {
+						if (g.getCode() == KeyCode.ENTER) {
+							aButton.setText(renamingAnswer.getText());
+							aButton.setGraphic(null);
+						}
+					});
 					for(int i = 0; i < cardList.size(); i++) {
 						if(cardList.get(i).getAnswer().equals(enterAnswer)) {
 							cardList.get(i).setAnswer(renamingAnswer.getText());
@@ -935,7 +1024,7 @@ public class SceneNavigation {
 				newCard.getChildren().add(c);
 			}
 		});
-		
+
 		//presents learned cards
 		//basically, the cards are reset to all visible at first
 		//then, i iterate through all the cards
@@ -945,73 +1034,62 @@ public class SceneNavigation {
 		//
 		//this same concept applies to notButton
 		learnedButton.setOnAction(e -> {
-			for (GridPane g : cardBoxes) {
-				g.setVisible(true);
-			}
+			cardPane.getChildren().removeAll(cardBoxes);
+			cardPane.getChildren().addAll(cardBoxes);
 			for (GridPane g : cardBoxes) {
 				if (!cardBoxes.contains(g) || !learnedCards.contains(g)) {
-					g.setVisible(false);
+					cardPane.getChildren().remove(g);
 				}
 			}
 		});	
 				
 		//presents unlearned cards
 		notButton.setOnAction(e -> {
-			for (GridPane g : cardBoxes) {
-				g.setVisible(true);
-			}
+			cardPane.getChildren().removeAll(cardBoxes);
+			cardPane.getChildren().addAll(cardBoxes);
 			for (GridPane g : cardBoxes) {
 				if (!cardBoxes.contains(g) || !notLearnedCards.contains(g)) {
-					g.setVisible(false);
+					cardPane.getChildren().remove(g);
 				}
 			}
 		});
 		
 		//presents all cards
 		allButton.setOnAction(a -> {
-			for (GridPane g : cardBoxes) {
-				g.setVisible(true);
+			cardPane.getChildren().removeAll(cardBoxes);
+			cardPane.getChildren().addAll(cardBoxes);
+		});
+		
+		shuffleButton.setOnAction(a -> {
+			//clear existing cards
+			cardPane.getChildren().removeAll(cardBoxes);
+			
+			//shuffle cardBoxes
+			ArrayList<GridPane> cardBoxes2 = new ArrayList<GridPane>();
+			while(cardBoxes.size() > 0) {
+				int random = (int) (Math.random() * cardBoxes.size());
+				GridPane j = cardBoxes.get(random);
+				cardBoxes.remove(j);
+				cardBoxes2.add(j);
 			}
+			for(int i = 0; i < cardBoxes2.size(); i++) {
+				cardBoxes.add(cardBoxes2.get(i));
+			}
+			
+			//add back all the cards to the cardPane in the new shuffled order
+			cardPane.getChildren().addAll(cardBoxes);
+			
 		});
 
 		cardPane.getChildren().addAll(qText, aText, enter, backBtn, allButton, learnedButton,
-								notButton);
+								notButton, shuffleButton);
 		cardPane.setStyle("-fx-background-color: linear-gradient(to top,#6299F9, #FFFAEA)");
 
 		//set up the scene
-		Scene scene1 = new Scene(cardPane, 950, 750);
-		sceneSet(primary, scene1);
-	}
-	
-	/**
-	 * Sets the scene to the primary stage.
-	 * 
-	 * @param primaryStage the stage to set the scene in
-	 * @param scene the scene to be set
-	 */
-	public void sceneSet(Stage primaryStage, Scene scene) {
-		scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
-		primaryStage.setScene(scene);
-		primaryStage.show();
-	}
-	
-	/**
-	 * Renames the text on a button.
-	 * 
-	 * @param text the text to rename
-	 * @param thingToRename the object where the text is located 
-	 */
-	public void rename(TextField text, Button thingToRename) {
-		text.setText(text.getText());
-		thingToRename.setText("");
-		thingToRename.setGraphic(text);
-		text.setOnKeyPressed(g -> {
-			if (g.getCode() == KeyCode.ENTER) {
-				thingToRename.setText(text.getText());
-				thingToRename.setGraphic(null);
-			}
-		});
-
+		Scene scene1 = new Scene(scrollCardPane, 1050, 750);
+		scene1.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+		primary.setScene(scene1);
+		primary.show();
 	}
 	
 	/**
